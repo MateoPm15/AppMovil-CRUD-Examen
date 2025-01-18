@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menuVerEstudiantes"
+        android:title="Ver estudiantes" />
+    <item
+        android:id="@+id/menuEditarCurso"
+        android:title="Editar curso" />
+    <item
+        android:id="@+id/menuEliminarCurso"
+        android:title="Eliminar curso" />
+</menu>
