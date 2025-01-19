@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "216578841551",
+    "project_id": "app-crud-deber",
+    "storage_bucket": "app-crud-deber.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:216578841551:android:7743b0037e988bcf4090ba",
+        "android_client_info": {
+          "package_name": "com.example.examen_crud"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSk7i_fCaSSDbkfXL_LVSEq65GXDzzlWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -70,7 +70,6 @@ class Controlador (context: Context) {
     fun crearEstudiante(cursoId: Int, estudiante: Estudiante) {
         val db = dbHelper.writableDatabase
         val valores = ContentValues().apply {
-            put("id", estudiante.id)
             put("nombre", estudiante.nombre)
             put("edad", estudiante.edad)
             put("email", estudiante.email)
@@ -82,19 +81,19 @@ class Controlador (context: Context) {
     }
 
     //Listar estudiantes de un curso
-    fun listarEstudiantesPorCurso(cursoId: Int):List<Estudiante> {
+    fun listarEstudiantesPorCurso(cursoId: Int): List<Estudiante> {
         val db = dbHelper.readableDatabase
         val cursor = db.rawQuery(
-            "SELECT * FROM Estudiante WHERE curso_id = ?",
+            "SELECT * FROM Estudiante WHERE curso_id = ?", // Actualizado
             arrayOf(cursoId.toString())
         )
         val estudiantes = mutableListOf<Estudiante>()
         while (cursor.moveToNext()) {
-            val id = cursor.getInt(0)
-            val nombre = cursor.getString(1)
-            val edad = cursor.getInt(2)
-            val email = cursor.getString(3)
-            val telefono = cursor.getInt(4)
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+            val edad = cursor.getInt(cursor.getColumnIndexOrThrow("edad"))
+            val email = cursor.getString(cursor.getColumnIndexOrThrow("email"))
+            val telefono = cursor.getInt(cursor.getColumnIndexOrThrow("telefono"))
             estudiantes.add(Estudiante(id, nombre, edad, email, telefono))
         }
         cursor.close()
@@ -123,4 +122,18 @@ class Controlador (context: Context) {
         db.close()
         return rows > 0
     }
+
+    fun depurarEstudiantes() {
+        val db = dbHelper.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM Estudiante", null)
+        while (cursor.moveToNext()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+            val cursoId = cursor.getInt(cursor.getColumnIndexOrThrow("curso_id"))
+            println("Estudiante: $id, Nombre: $nombre, Curso ID: $cursoId")
+        }
+        cursor.close()
+        db.close()
+    }
+
 }

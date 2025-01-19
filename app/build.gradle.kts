@@ -1,7 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.android) // Este alias ya incluye el plugin Kotlin para Android
+    alias(libs.plugins.google.firebase.appdistribution)
+    alias(libs.plugins.google.gms.google.services)
 }
+
 
 android {
     namespace = "com.example.examen_crud"

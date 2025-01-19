@@ -1,6 +1,5 @@
 package com.example.examen_crud
 
-
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -29,11 +28,14 @@ class ActivityAgregarEditarEstudiante : AppCompatActivity() {
         etTelefonoEstudiante = findViewById(R.id.etTelefonoEstudiante)
         btnGuardarEstudiante = findViewById(R.id.btnGuardarEstudiante)
         val tvFormularioTitulo: TextView = findViewById(R.id.tvFormularioTitulo)
-        tvFormularioTitulo.text = if (estudianteId != null) "Editar Estudiante" else "Agregar Estudiante"
 
         cursoId = intent.getIntExtra("cursoId", 0)
         estudianteId = intent.getIntExtra("estudianteId", 0).takeIf { it != 0 }
 
+        // Actualiza el título basado en si estamos editando o creando
+        tvFormularioTitulo.text = if (estudianteId != null) "Editar Estudiante" else "Agregar Estudiante"
+
+        // Cargar datos del estudiante si estamos editando
         if (estudianteId != null) {
             val estudiante = controlador.listarEstudiantesPorCurso(cursoId).find { it.id == estudianteId }
             estudiante?.let {
@@ -45,26 +47,31 @@ class ActivityAgregarEditarEstudiante : AppCompatActivity() {
         }
 
         btnGuardarEstudiante.setOnClickListener {
-            val nombre = etNombreEstudiante.text.toString()
-            val edad = etEdadEstudiante.text.toString().toIntOrNull()
-            val email = etEmailEstudiante.text.toString()
-            val telefono = etTelefonoEstudiante.text.toString().toIntOrNull()
+            guardarEstudiante()
+        }
+    }
 
-            if (nombre.isNotEmpty() && edad != null && email.isNotEmpty() && telefono != null) {
-                if (estudianteId != null) {
-                    controlador.actualizarEstudiante(
-                        Estudiante(estudianteId!!, nombre, edad, email, telefono)
-                    )
-                    Toast.makeText(this, "Estudiante actualizado", Toast.LENGTH_SHORT).show()
-                } else {
-                    val nuevoId = (controlador.listarEstudiantesPorCurso(cursoId).maxOfOrNull { it.id } ?: 0) + 1
-                    controlador.crearEstudiante(cursoId, Estudiante(nuevoId, nombre, edad, email, telefono))
-                    Toast.makeText(this, "Estudiante creado", Toast.LENGTH_SHORT).show()
-                }
-                finish()
+    private fun guardarEstudiante() {
+        val nombre = etNombreEstudiante.text.toString()
+        val edad = etEdadEstudiante.text.toString().toIntOrNull()
+        val email = etEmailEstudiante.text.toString()
+        val telefono = etTelefonoEstudiante.text.toString().toIntOrNull()
+
+        if (nombre.isNotEmpty() && edad != null && email.isNotEmpty() && telefono != null) {
+            if (estudianteId != null) {
+                // Actualizar estudiante existente
+                controlador.actualizarEstudiante(
+                    Estudiante(estudianteId!!, nombre, edad, email, telefono)
+                )
+                Toast.makeText(this, "Estudiante actualizado", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+                // Crear nuevo estudiante
+                controlador.crearEstudiante(cursoId, Estudiante(0, nombre, edad, email, telefono))
+                Toast.makeText(this, "Estudiante creado", Toast.LENGTH_SHORT).show()
             }
+            finish()
+        } else {
+            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
         }
     }
 }

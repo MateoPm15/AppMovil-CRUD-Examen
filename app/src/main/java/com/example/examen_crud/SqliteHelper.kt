@@ -8,7 +8,7 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
     context,
     "CursosDB",
     null,
-    1
+    3 // Incrementa la versión si cambias la estructura
 ) {
     override fun onCreate(db: SQLiteDatabase?) {
         val scriptSqlCrearCurso = """
@@ -35,8 +35,16 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
         db?.execSQL(scriptSqlCrearEstudiante)
     }
 
-    override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
-        TODO("Not yet implemented")
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        if (oldVersion < newVersion) {
+            db?.execSQL("DROP TABLE IF EXISTS Estudiante")
+            db?.execSQL("DROP TABLE IF EXISTS Curso")
+            onCreate(db) // Recrea las tablas
+        }
     }
 
+    override fun onConfigure(db: SQLiteDatabase?) {
+        super.onConfigure(db)
+        db?.setForeignKeyConstraintsEnabled(true) // Habilita las claves foráneas
+    }
 }

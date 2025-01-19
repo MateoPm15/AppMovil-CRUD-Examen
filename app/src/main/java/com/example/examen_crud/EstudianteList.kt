@@ -52,14 +52,19 @@ class ActivityEstudianteList : AppCompatActivity() {
 
     private fun actualizarLista() {
         val estudiantes = controlador.listarEstudiantesPorCurso(cursoId)
+        if (estudiantes.isEmpty()) {
+            Toast.makeText(this, "No hay estudiantes en este curso", Toast.LENGTH_SHORT).show()
+        }
         val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, estudiantes.map { it.nombre })
         listViewEstudiantes.adapter = adapter
 
-        listViewEstudiantes.setOnItemClickListener { _, _, position, _ ->
+        listViewEstudiantes.setOnItemLongClickListener { _, _, position, _ ->
             selectedEstudiante = estudiantes[position]
-            listViewEstudiantes.showContextMenu()
+            false // Esto permite que el menú contextual se muestre
         }
     }
+
+
 
     override fun onCreateContextMenu(menu: ContextMenu?, v: View?, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
@@ -87,6 +92,7 @@ class ActivityEstudianteList : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        controlador.depurarEstudiantes() // Agrega esta línea para depurar
         actualizarLista()
     }
 }
