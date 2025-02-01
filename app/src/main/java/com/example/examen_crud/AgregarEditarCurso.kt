@@ -1,20 +1,25 @@
 package com.example.examen_crud
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 
 class ActivityAgregarEditarCurso : AppCompatActivity() {
     private lateinit var controlador: Controlador
     private lateinit var etNombreCurso: EditText
     private lateinit var etDescripcionCurso: EditText
     private lateinit var etDuracionCurso: EditText
-    private lateinit var etLatitudCurso: EditText
-    private lateinit var etLongitudCurso: EditText
+    private lateinit var etUbicacionCurso: EditText
+    private lateinit var btnUbicacion: Button
     private lateinit var btnGuardarCurso: Button
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var cursoId: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,45 +27,52 @@ class ActivityAgregarEditarCurso : AppCompatActivity() {
         setContentView(R.layout.activity_agregar_editar_curso)
 
         controlador = Controlador(this)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Enlazar los elementos del layout
+        // Referencias a los elementos del layout
         etNombreCurso = findViewById(R.id.etNombreCurso)
         etDescripcionCurso = findViewById(R.id.etDescripcionCurso)
         etDuracionCurso = findViewById(R.id.etDuracionCurso)
-        etLatitudCurso = findViewById(R.id.etLatitudCurso)
-        etLongitudCurso = findViewById(R.id.etLongitudCurso)
+        etUbicacionCurso = findViewById(R.id.etUbicacionCurso)
+        btnUbicacion = findViewById(R.id.btnUbicacion)
         btnGuardarCurso = findViewById(R.id.btnGuardarCurso)
-        val tvFormularioTitulo: TextView = findViewById(R.id.tvFormularioTitulo)
 
-        // Obtener el cursoId del intent
+        // Obtener el curso si se está editando
         cursoId = intent.getIntExtra("cursoId", -1).takeIf { it != -1 }
-
-        println("Recibido cursoId: $cursoId")  // Para depuración
-
         if (cursoId != null) {
-            tvFormularioTitulo.text = "Editar Curso"
             val curso = controlador.obtenerCursoPorId(cursoId!!)
-
-            if (curso != null) {
-                println("Curso encontrado: $curso")  // Para depuración
-
-                // Llenar los campos con la información del curso
-                etNombreCurso.setText(curso.nombre)
-                etDescripcionCurso.setText(curso.descripcion)
-                etDuracionCurso.setText(curso.duracion.toString())
-                etLatitudCurso.setText(curso.latitud?.toString() ?: "0.0")
-                etLongitudCurso.setText(curso.longitud?.toString() ?: "0.0")
-            } else {
-                println("Curso no encontrado en la base de datos")
-                Toast.makeText(this, "Error: Curso no encontrado", Toast.LENGTH_LONG).show()
+            curso?.let {
+                etNombreCurso.setText(it.nombre)
+                etDescripcionCurso.setText(it.descripcion)
+                etDuracionCurso.setText(it.duracion.toString())
+                etUbicacionCurso.setText(it.ubicacion ?: "0.0, 0.0") // Si es null, usa 0.0, 0.0
             }
-        } else {
-            tvFormularioTitulo.text = "Agregar Curso"
         }
 
-        // Guardar curso al presionar el botón
+        // Evento para el botón de ubicación actual
+        btnUbicacion.setOnClickListener {
+            obtenerUbicacionActual()
+        }
+
         btnGuardarCurso.setOnClickListener {
             guardarCurso()
+        }
+    }
+
+    private fun obtenerUbicacionActual() {
+        // Verifica permisos
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        } else {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+                if (location != null) {
+                    val coordenadas = "${location.latitude}, ${location.longitude}"
+                    etUbicacionCurso.setText(coordenadas)
+                    Toast.makeText(this, "Ubicación obtenida correctamente", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "No se pudo obtener la ubicación", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 
@@ -68,24 +80,18 @@ class ActivityAgregarEditarCurso : AppCompatActivity() {
         val nombre = etNombreCurso.text.toString()
         val descripcion = etDescripcionCurso.text.toString()
         val duracion = etDuracionCurso.text.toString().toIntOrNull()
-        val latitud = etLatitudCurso.text.toString().toDoubleOrNull()
-        val longitud = etLongitudCurso.text.toString().toDoubleOrNull()
+        val ubicacion = etUbicacionCurso.text.toString()
 
-        if (nombre.isNotEmpty() && descripcion.isNotEmpty() && duracion != null && latitud != null && longitud != null) {
+        if (nombre.isNotEmpty() && descripcion.isNotEmpty() && duracion != null) {
+            val curso = Curso(cursoId ?: 0, nombre, descripcion, duracion, ubicacion)
             if (cursoId != null) {
-                // Actualizar curso existente
-                val cursoActualizado = Curso(cursoId!!, nombre, descripcion, duracion, latitud, longitud)
-                controlador.actualizarCurso(cursoActualizado)
-                Toast.makeText(this, "Curso actualizado", Toast.LENGTH_SHORT).show()
+                controlador.actualizarCurso(curso)
             } else {
-                // Crear nuevo curso
-                val nuevoId = (controlador.listarCurso().maxOfOrNull { it.id } ?: 0) + 1
-                controlador.crearCurso(Curso(nuevoId, nombre, descripcion, duracion, latitud, longitud))
-                Toast.makeText(this, "Curso creado", Toast.LENGTH_SHORT).show()
+                controlador.crearCurso(curso)
             }
             finish()
         } else {
-            Toast.makeText(this, "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
         }
     }
 }

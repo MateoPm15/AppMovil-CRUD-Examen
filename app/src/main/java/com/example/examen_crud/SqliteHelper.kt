@@ -8,7 +8,7 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
     context,
     "CursosDB",
     null,
-    3 // Incrementa la versión si cambias la estructura
+    4 // Incrementa la versión si cambias la estructura
 ) {
     override fun onCreate(db: SQLiteDatabase?) {
         val scriptSqlCrearCurso = """
@@ -17,8 +17,7 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
                 nombre VARCHAR(250),
                 descripcion VARCHAR(250),
                 duracion INTEGER,
-                latitud REAL, 
-                longitud REAL
+                ubicacion TEXT -- Nueva columna como String en formato "latitud, longitud"
             )
         """.trimIndent()
         db?.execSQL(scriptSqlCrearCurso)
@@ -38,13 +37,10 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        if (oldVersion < 3) {
-            try {
-                db?.execSQL("ALTER TABLE Curso ADD COLUMN latitud REAL DEFAULT NULL")
-                db?.execSQL("ALTER TABLE Curso ADD COLUMN longitud REAL DEFAULT NULL")
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        if (oldVersion < newVersion) {
+            db?.execSQL("DROP TABLE IF EXISTS Estudiante")
+            db?.execSQL("DROP TABLE IF EXISTS Curso")
+            onCreate(db) // Recrea las tablas
         }
     }
 

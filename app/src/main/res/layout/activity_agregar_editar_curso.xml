@@ -34,23 +34,28 @@
         android:hint="Duración (horas)"
         android:inputType="number" />
 
+    <!-- EditText único para la ubicación -->
     <EditText
-        android:id="@+id/etLatitudCurso"
+        android:id="@+id/etUbicacionCurso"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Latitud"
-        android:inputType="numberDecimal" />
+        android:hint="Ubicación (Latitud, Longitud)"
+        android:inputType="text"
+        android:padding="10dp"
+        android:layout_marginTop="8dp"/>
 
-    <EditText
-        android:id="@+id/etLongitudCurso"
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/btnUbicacion"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="Longitud"
-        android:inputType="numberDecimal" />
+        android:text="Seleccionar Ubicación Actual"
+        android:layout_marginTop="8dp"
+        android:padding="10dp"/>
 
     <Button
         android:id="@+id/btnGuardarCurso"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Guardar" />
+        android:text="Guardar"
+        android:layout_marginTop="12dp"/>
 </LinearLayout>

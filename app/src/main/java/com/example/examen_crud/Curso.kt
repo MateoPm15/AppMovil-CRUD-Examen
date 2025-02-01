@@ -5,6 +5,5 @@ data class Curso(
     val nombre: String,
     val descripcion: String,
     val duracion: Int,
-    val latitud: Double?,   // Nueva propiedad
-    val longitud: Double?   // Nueva propiedad
+    val ubicacion: String? // Ahora se almacena en un solo campo como "latitud, longitud"
 )
