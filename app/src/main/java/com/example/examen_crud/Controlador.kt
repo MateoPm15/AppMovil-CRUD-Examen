@@ -10,7 +10,6 @@ class Controlador (context: Context) {
     fun crearCurso(curso: Curso) {
         val db = dbHelper.writableDatabase
         val valores = ContentValues().apply {
-            put("id", curso.id)
             put("nombre", curso.nombre)
             put("descripcion", curso.descripcion)
             put("duracion", curso.duracion)

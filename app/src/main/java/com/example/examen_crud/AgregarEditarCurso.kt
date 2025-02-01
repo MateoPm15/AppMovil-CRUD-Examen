@@ -83,8 +83,8 @@ class ActivityAgregarEditarCurso : AppCompatActivity() {
         val ubicacion = etUbicacionCurso.text.toString()
 
         if (nombre.isNotEmpty() && descripcion.isNotEmpty() && duracion != null) {
-            val curso = Curso(cursoId ?: 0, nombre, descripcion, duracion, ubicacion)
-            if (cursoId != null) {
+            val curso = Curso(cursoId ?: -1, nombre, descripcion, duracion, ubicacion)
+            if (cursoId != null && cursoId != -1) {
                 controlador.actualizarCurso(curso)
             } else {
                 controlador.crearCurso(curso)
