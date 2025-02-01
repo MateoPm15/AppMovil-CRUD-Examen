@@ -21,9 +21,9 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_mapa)
 
         controlador = Controlador(this)
-
         cursoId = intent.getIntExtra("cursoId", 0)
 
+        // Obtener el fragmento del mapa
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -32,14 +32,20 @@ class Mapa : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        // Habilitar botones de zoom
+        mMap.uiSettings.isZoomControlsEnabled = true
+
+        // Obtener el curso desde la base de datos
         val curso = controlador.obtenerCursoPorId(cursoId)
 
-        if (curso != null && curso.latitud != null && curso.longitud != null) {
-            val ubicacion = LatLng(curso.latitud, curso.longitud)
-            mMap.addMarker(MarkerOptions().position(ubicacion).title("Ubicación del Curso: ${curso.nombre}"))
+        curso?.let {
+            val ubicacion = LatLng(it.latitud ?: 0.0, it.longitud ?: 0.0)
+
+            // Agregar marcador en la ubicación del curso
+            mMap.addMarker(MarkerOptions().position(ubicacion).title(it.nombre))
+
+            // Mover la cámara con zoom
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ubicacion, 15f))
-        } else {
-            Toast.makeText(this, "No hay ubicación guardada para este curso", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -23,24 +23,33 @@ class Controlador (context: Context) {
 
     //Listar Cursos
     fun listarCurso(): List<Curso> {
-        val db = dbHelper.writableDatabase
+        val db = dbHelper.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM Curso", null)
         val cursos = mutableListOf<Curso>()
+
         while (cursor.moveToNext()) {
-            val id = cursor.getInt(0)
-            val nombre = cursor.getString(1)
-            val descripcion = cursor.getString(2)
-            val duracion = cursor.getInt(3)
-            val latitud = cursor.getDouble(4)
-            val longitud = cursor.getDouble(5)
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+            val descripcion = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"))
+            val duracion = cursor.getInt(cursor.getColumnIndexOrThrow("duracion"))
+
+            // Verificar si latitud y longitud son NULL
+            val latitud = if (!cursor.isNull(cursor.getColumnIndexOrThrow("latitud"))) {
+                cursor.getDouble(cursor.getColumnIndexOrThrow("latitud"))
+            } else null
+
+            val longitud = if (!cursor.isNull(cursor.getColumnIndexOrThrow("longitud"))) {
+                cursor.getDouble(cursor.getColumnIndexOrThrow("longitud"))
+            } else null
+
             cursos.add(Curso(id, nombre, descripcion, duracion, latitud, longitud))
         }
+
         cursor.close()
         db.close()
         return cursos
     }
 
-    // Obtener un curso por su ID
     fun obtenerCursoPorId(cursoId: Int): Curso? {
         val db = dbHelper.readableDatabase
         val cursor = db.rawQuery("SELECT * FROM Curso WHERE id = ?", arrayOf(cursoId.toString()))
@@ -51,8 +60,14 @@ class Controlador (context: Context) {
             val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
             val descripcion = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"))
             val duracion = cursor.getInt(cursor.getColumnIndexOrThrow("duracion"))
-            val latitud = cursor.getDouble(cursor.getColumnIndexOrThrow("latitud"))
-            val longitud = cursor.getDouble(cursor.getColumnIndexOrThrow("longitud"))
+
+            val latitud = if (!cursor.isNull(cursor.getColumnIndexOrThrow("latitud"))) {
+                cursor.getDouble(cursor.getColumnIndexOrThrow("latitud"))
+            } else null
+
+            val longitud = if (!cursor.isNull(cursor.getColumnIndexOrThrow("longitud"))) {
+                cursor.getDouble(cursor.getColumnIndexOrThrow("longitud"))
+            } else null
 
             curso = Curso(id, nombre, descripcion, duracion, latitud, longitud)
         }
@@ -61,7 +76,6 @@ class Controlador (context: Context) {
         db.close()
         return curso
     }
-
 
     //Actualizar Curso
     fun actualizarCurso(curso: Curso): Boolean {

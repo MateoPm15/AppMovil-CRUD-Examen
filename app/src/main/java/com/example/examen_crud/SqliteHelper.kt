@@ -38,10 +38,13 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        if (oldVersion < newVersion) {
-            db?.execSQL("DROP TABLE IF EXISTS Estudiante")
-            db?.execSQL("DROP TABLE IF EXISTS Curso")
-            onCreate(db) // Recrea las tablas
+        if (oldVersion < 3) {
+            try {
+                db?.execSQL("ALTER TABLE Curso ADD COLUMN latitud REAL DEFAULT NULL")
+                db?.execSQL("ALTER TABLE Curso ADD COLUMN longitud REAL DEFAULT NULL")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
     }
 

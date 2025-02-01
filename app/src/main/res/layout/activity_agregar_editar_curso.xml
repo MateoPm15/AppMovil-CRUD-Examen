@@ -38,16 +38,15 @@
         android:id="@+id/etLatitudCurso"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Latitud (Opcional)"
-        android:inputType="numberDecimal"/>
+        android:hint="Latitud"
+        android:inputType="numberDecimal" />
 
     <EditText
         android:id="@+id/etLongitudCurso"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Longitud (Opcional)"
-        android:inputType="numberDecimal"/>
-
+        android:hint="Longitud"
+        android:inputType="numberDecimal" />
 
     <Button
         android:id="@+id/btnGuardarCurso"

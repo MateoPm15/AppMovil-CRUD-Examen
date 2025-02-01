@@ -23,7 +23,7 @@ class ActivityAgregarEditarCurso : AppCompatActivity() {
 
         controlador = Controlador(this)
 
-        // Referencias a los EditText
+        // Enlazar los elementos del layout
         etNombreCurso = findViewById(R.id.etNombreCurso)
         etDescripcionCurso = findViewById(R.id.etDescripcionCurso)
         etDuracionCurso = findViewById(R.id.etDuracionCurso)
@@ -32,25 +32,33 @@ class ActivityAgregarEditarCurso : AppCompatActivity() {
         btnGuardarCurso = findViewById(R.id.btnGuardarCurso)
         val tvFormularioTitulo: TextView = findViewById(R.id.tvFormularioTitulo)
 
-        // Obtener cursoId de intent
-        cursoId = intent.getIntExtra("cursoId", 0).takeIf { it != 0 }
+        // Obtener el cursoId del intent
+        cursoId = intent.getIntExtra("cursoId", -1).takeIf { it != -1 }
 
-        // Modificar el título del formulario dependiendo de si se edita o se crea un curso
-        tvFormularioTitulo.text = if (cursoId != null) "Editar Curso" else "Agregar Curso"
+        println("Recibido cursoId: $cursoId")  // Para depuración
 
-        // Si estamos editando, llenar los campos con la información del curso
         if (cursoId != null) {
+            tvFormularioTitulo.text = "Editar Curso"
             val curso = controlador.obtenerCursoPorId(cursoId!!)
-            curso?.let {
-                etNombreCurso.setText(it.nombre)
-                etDescripcionCurso.setText(it.descripcion)
-                etDuracionCurso.setText(it.duracion.toString())
-                etLatitudCurso.setText(it.latitud?.toString() ?: "")
-                etLongitudCurso.setText(it.longitud?.toString() ?: "")
+
+            if (curso != null) {
+                println("Curso encontrado: $curso")  // Para depuración
+
+                // Llenar los campos con la información del curso
+                etNombreCurso.setText(curso.nombre)
+                etDescripcionCurso.setText(curso.descripcion)
+                etDuracionCurso.setText(curso.duracion.toString())
+                etLatitudCurso.setText(curso.latitud?.toString() ?: "0.0")
+                etLongitudCurso.setText(curso.longitud?.toString() ?: "0.0")
+            } else {
+                println("Curso no encontrado en la base de datos")
+                Toast.makeText(this, "Error: Curso no encontrado", Toast.LENGTH_LONG).show()
             }
+        } else {
+            tvFormularioTitulo.text = "Agregar Curso"
         }
 
-        // Acción del botón guardar
+        // Guardar curso al presionar el botón
         btnGuardarCurso.setOnClickListener {
             guardarCurso()
         }
@@ -63,18 +71,16 @@ class ActivityAgregarEditarCurso : AppCompatActivity() {
         val latitud = etLatitudCurso.text.toString().toDoubleOrNull()
         val longitud = etLongitudCurso.text.toString().toDoubleOrNull()
 
-        if (nombre.isNotEmpty() && descripcion.isNotEmpty() && duracion != null) {
+        if (nombre.isNotEmpty() && descripcion.isNotEmpty() && duracion != null && latitud != null && longitud != null) {
             if (cursoId != null) {
                 // Actualizar curso existente
-                controlador.actualizarCurso(
-                    Curso(cursoId!!, nombre, descripcion, duracion, latitud, longitud)
-                )
+                val cursoActualizado = Curso(cursoId!!, nombre, descripcion, duracion, latitud, longitud)
+                controlador.actualizarCurso(cursoActualizado)
                 Toast.makeText(this, "Curso actualizado", Toast.LENGTH_SHORT).show()
             } else {
                 // Crear nuevo curso
-                controlador.crearCurso(
-                    Curso(0, nombre, descripcion, duracion, latitud, longitud)
-                )
+                val nuevoId = (controlador.listarCurso().maxOfOrNull { it.id } ?: 0) + 1
+                controlador.crearCurso(Curso(nuevoId, nombre, descripcion, duracion, latitud, longitud))
                 Toast.makeText(this, "Curso creado", Toast.LENGTH_SHORT).show()
             }
             finish()
