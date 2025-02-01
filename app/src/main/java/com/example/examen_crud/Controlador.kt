@@ -14,6 +14,8 @@ class Controlador (context: Context) {
             put("nombre", curso.nombre)
             put("descripcion", curso.descripcion)
             put("duracion", curso.duracion)
+            put("latitud", curso.latitud)
+            put("longitud", curso.longitud)
         }
         db.insert("Curso", null, valores)
         db.close()
@@ -29,12 +31,37 @@ class Controlador (context: Context) {
             val nombre = cursor.getString(1)
             val descripcion = cursor.getString(2)
             val duracion = cursor.getInt(3)
-            cursos.add(Curso(id, nombre, descripcion, duracion))
+            val latitud = cursor.getDouble(4)
+            val longitud = cursor.getDouble(5)
+            cursos.add(Curso(id, nombre, descripcion, duracion, latitud, longitud))
         }
         cursor.close()
         db.close()
         return cursos
     }
+
+    // Obtener un curso por su ID
+    fun obtenerCursoPorId(cursoId: Int): Curso? {
+        val db = dbHelper.readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM Curso WHERE id = ?", arrayOf(cursoId.toString()))
+
+        var curso: Curso? = null
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
+            val nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre"))
+            val descripcion = cursor.getString(cursor.getColumnIndexOrThrow("descripcion"))
+            val duracion = cursor.getInt(cursor.getColumnIndexOrThrow("duracion"))
+            val latitud = cursor.getDouble(cursor.getColumnIndexOrThrow("latitud"))
+            val longitud = cursor.getDouble(cursor.getColumnIndexOrThrow("longitud"))
+
+            curso = Curso(id, nombre, descripcion, duracion, latitud, longitud)
+        }
+
+        cursor.close()
+        db.close()
+        return curso
+    }
+
 
     //Actualizar Curso
     fun actualizarCurso(curso: Curso): Boolean {
@@ -43,6 +70,8 @@ class Controlador (context: Context) {
             put("nombre", curso.nombre)
             put("descripcion", curso.descripcion)
             put("duracion", curso.duracion)
+            put("latitud", curso.latitud)
+            put("longitud", curso.longitud)
         }
         val rows = db.update(
             "Curso",

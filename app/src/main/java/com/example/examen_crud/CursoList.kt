@@ -70,6 +70,11 @@ class ActivityCursoList : AppCompatActivity() {
                     actualizarLista()
                 }
             }
+            R.id.menuAbrirMapa -> {
+                val intent = Intent(this, Mapa::class.java)
+                intent.putExtra("cursoId", selectedCurso?.id)
+                startActivity(intent)
+            }
         }
         return super.onContextItemSelected(item)
     }

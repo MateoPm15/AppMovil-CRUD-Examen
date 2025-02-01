@@ -16,7 +16,9 @@ class SqliteHelper(context: Context?) : SQLiteOpenHelper(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 nombre VARCHAR(250),
                 descripcion VARCHAR(250),
-                duracion INTEGER
+                duracion INTEGER,
+                latitud REAL, 
+                longitud REAL
             )
         """.trimIndent()
         db?.execSQL(scriptSqlCrearCurso)
